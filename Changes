@@ -1,0 +1,6 @@
+Revision history for Perl extension Iterator::File.
+
+0.01  Sun Apr 20 14:40:14 2008
+	- original version; created by h2xs 1.23 with options
+		-XA -b 5.6.0 Iterator::File
+
