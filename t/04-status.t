@@ -3,15 +3,20 @@
 use strict;
 use warnings;
 
-use IO::Scalar;
 use Data::Dumper;
+use Test::More;
 
-use Test::More 'no_plan';
 require 't/util.pl';
+use Iterator::File::Status;
 
-BEGIN {
-  use_ok( "Iterator::File::Status" );
-};
+## Is IPC::Shareable present?  If not, don't bother testing it...
+if(eval "use IO::Scalar; 1") {
+  plan tests => 15;
+} else {
+  plan skip_all => 'IO::Scalar not installed...';
+}
+
+
 
 my $data = '';
 my $fh = new IO::Scalar \$data;
@@ -64,16 +69,24 @@ my $fh = new IO::Scalar \$data;
   my $i = 0;
   my $start = time;
   my $last = $start;
+  my $fake_tests = 8;
   while (time - $start < 4) {
     $i++;
 
     ## So the test doesn't look hung...
     if (time - $last > 0) {
+      $fake_tests--;
       pass(" ... emit_status_fixed_time_interval ...");
       $last = time;
     }
     
     $status->emit_status_fixed_time_interval( $i );
+  }
+
+  ## ... more hackery so tests didn't long hung.  Since when is hung a bad thing?
+  while ($fake_tests >= 0) {
+    $fake_tests--;
+    pass(" ... emit_status_fixed_time_interval ...");
   }
 
   my $line_count = $data =~ s|\n|\n|g;

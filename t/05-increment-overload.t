@@ -3,31 +3,16 @@
 use strict;
 use warnings;
 
-use IO::Scalar;
-
-#use Test::More 'tests' => 5;
 use Test::More 'no_plan';
 require 't/util.pl';
 
-my $data = '';
-my $fh = new IO::Scalar \$data;
+use Iterator::File;
 
-BEGIN {
-  use_ok( "Iterator::File" );
-};
-
-
-{
-  $data = '';
-  my $file = 't/data/three_lines.txt';
-
-  my $i = iterator_file( $file );
-  $i->next();
-  print $fh "Test: $i :tseT";
-
- is($fh, "Test: this is the first line :tseT", "as_string overload");
+## Is IO::Scalar present?  If not, skip tests that need it.
+my $io_scalar_found = 0;
+if(eval "use IO::Scalar; 1") {
+  $io_scalar_found = 1;
 }
-
 
 
 {
@@ -44,5 +29,20 @@ BEGIN {
   
   is( $actual, $expected, "overload_add");
 }
+
+
+SKIP: {
+  skip "IO::Scalar not installed.", 1 unless $io_scalar_found;
+  my $data = '';
+  my $fh = new IO::Scalar \$data;
+  my $file = 't/data/three_lines.txt';
+
+  my $i = iterator_file( $file );
+  $i->next();
+  print $fh "Test: $i :tseT";
+
+ is($fh, "Test: this is the first line :tseT", "as_string overload");
+}
+
 
 
